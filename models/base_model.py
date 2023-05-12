@@ -47,7 +47,7 @@ class BaseModel():
             - created_at and updated_at must be converted to string obj
                 in ISO format
         """
-        self.save()
+        # self.save() - not valid ? = obj not changed
         my_dict = dict()
         for key, val in self.__dict__.items():
             if not key.startswith('__') and not callable(val):
