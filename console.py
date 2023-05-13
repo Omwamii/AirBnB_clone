@@ -7,12 +7,25 @@ import json
 import sys
 from models.base_model import BaseModel
 from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 from models import storage
 
 
 class HBNBCommand(cmd.Cmd):
     """ Commandline class """
     prompt = '(hbnb) '
+    __classes = ["BaseModel",
+                 "User",
+                 "State",
+                 "City",
+                 "Amenity",
+                 "Place",
+                 "Review"
+                 ]
 
     def do_quit(self, line):
         """Quit command to exit the program\n """
@@ -34,16 +47,11 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class name  missing **")
-        elif ln[0] != "BaseModel" and ln[0] != "User":
+        elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
         else:
-            if ln[0] == "BaseModel":
-                obj = BaseModel()
-            elif ln[0] == "User":
-                obj = User()
-            storage.new(obj)
+            print(eval(ln[0])().id)  # create obj using eval and print id
             storage.save()
-            print(obj.id)
 
     def do_show(self, line):
         """
@@ -56,7 +64,7 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class name missing **")
-        elif len(ln) > 0 and ln[0] != "BaseModel" and ln[0] != "User":
+        elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
         elif len(ln) == 1:
             print("** instance id is missing **")
@@ -84,9 +92,9 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class is missing **")
-        elif ln[0] != "BaseModel" and ln[0] != "User":
+        elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
-        elif ln[1] is None:
+        elif len(ln) == 1:
             print("** instance id is missing **")
         else:
             try:
@@ -109,37 +117,16 @@ class HBNBCommand(cmd.Cmd):
                 $ all (ok)   $ all BaseModel (ok) or all User (ok)
         """
         ln = line.split()
-        try:
-            if ln[0] != "BaseModel" and ln[0] != "User":
-                print("** class doesn't exist **")
-                return
-        except IndexError:
-            pass
-        all_objs = list()
-        try:
-            with open("file.json", "r") as f:
-                obj_dict = json.load(f)
-        except FileNotFoundError:
+        if len(ln) > 0 and ln[0] not in self.__classes:
             print("** class doesn't exist **")
         else:
-            if obj_dict == "{}":
-                print("** class doesn't exist **")
-            else:
-                if len(ln) == 0:  # only all, no arg
-                    for obj_id in obj_dict.keys():
-                        n = obj_id.split(".")
-                        all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
-                elif ln[0] == "BaseModel":
-                    for obj_id in obj_dict.keys():
-                        n = obj_id.split(".")
-                        if n[0] == "BaseModel":
-                            all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
-                elif ln[0] == "User":
-                    for obj_id in obj_dict.keys():
-                        n = obj_id.split(".")
-                        if n[0] == "User":
-                            all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
-                print(all_objs)
+            objs = list()
+            for obj in storage.all().values():
+                if len(ln) > 0 and ln[0] == obj.__class__.__name__:
+                    objs.append(obj.__str__())
+                elif len(ln) == 0:  # append every object
+                    objs.append(obj.__str__())
+            print(objs)
 
     def do_update(self, line):
         """
@@ -158,7 +145,7 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class name missing **")
-        elif ln[0] != "BaseModel" and ln[0] != "User":
+        elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
         elif len(ln) == 1:
             print("** instance id missing **")
@@ -176,10 +163,13 @@ class HBNBCommand(cmd.Cmd):
                 if f"{ln[0]}.{ln[1]}" not in obj_dicts:
                     print("** no instance found **")
                 else:
-                    val = str(ln[3][1:-1])  # remove double quotes ""
-                    updated_dict = obj_dicts[f"{ln[0]}.{ln[1]}"]
-                    updated_dict[ln[2]] = val  # update the val in the obj dict
-                    obj_dicts[f"{ln[0]}.{ln[1]}"] = updated_dict
+                    value = (cast_type)(ln[3][1:-1])  # remove double quotes ""
+                    if f"{ln[0]}.{ln[1]}" in obj_dicts:
+                        obj_dict = obj_dicts[f"{ln[0]}.{ln[1]}"]
+                        cast_type = type(obj_dict[f"{ln[2]}"])
+                        val = cast_type(value)
+                        obj_dict[ln[2]] = val  # update the val in the obj dict
+                        obj_dicts[f"{ln[0]}.{ln[1]}"] = obj_dict
             with open("file.json", "w") as f:
                 j_string = json.dumps(obj_dicts)
                 f.write(j_string)  # write the new dict to file

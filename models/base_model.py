@@ -4,7 +4,7 @@ module with the Base class
 """
 import datetime
 import uuid
-from . import storage
+import models
 
 
 class BaseModel():
@@ -24,7 +24,7 @@ class BaseModel():
             self.id = str(uuid.uuid4())
             self.created_at = datetime.datetime.now()
             self.updated_at = self.created_at  # new instance no changes
-            storage.new(self)
+            models.storage.new(self)
 
     def __str__(self):
         """ define __str__ """
@@ -36,7 +36,7 @@ class BaseModel():
         with current datetime when the object is changed
         """
         self.updated_at = datetime.datetime.now()
-        storage.save()
+        models.storage.save()
 
     def to_dict(self):
         """
@@ -49,9 +49,8 @@ class BaseModel():
         """
         my_dict = dict()
         for key, val in self.__dict__.items():
-            #if not key.startswith('__') and not callable(val):
             my_dict[key] = val
-        my_dict['__class__'] = __class__.__name__
+        my_dict['__class__'] = self.__class__.__name__
         my_dict['updated_at'] = self.updated_at.isoformat()
         my_dict['created_at'] = self.created_at.isoformat()
 

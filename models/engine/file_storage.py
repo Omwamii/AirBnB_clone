@@ -6,6 +6,12 @@ module with the class 'FileStorage' which:
 """
 import json
 from models.base_model import BaseModel
+from models.user import User
+from models.state import State
+from models.city import City
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
 
 
 class FileStorage():
@@ -20,6 +26,7 @@ class FileStorage():
     def new(self, obj):
         """ sets in __objects the obj with key <obj class name>.id """
         self.__objects[f"{obj.__class__.__name__}.{obj.id}"] = obj
+
     def save(self):
         """ serializes __objects to JSON file of path:
                         __file_path
@@ -37,6 +44,7 @@ class FileStorage():
         try:
             with open(self.__file_path, "r") as f:
                 for obj in json.load(f).values():
-                    self.new(eval(obj["__class__"])(**obj))  # create object and store in self.__objects
+                    # create object and store in self.__objects
+                    self.new(eval(obj["__class__"])(**obj))
         except FileNotFoundError:
             return
