@@ -6,6 +6,7 @@ import cmd
 import json
 import sys
 from models.base_model import BaseModel
+from models.user import User
 from models import storage
 
 
@@ -25,7 +26,7 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, line):
-        """ Creates a new instance of BaseModel, saves it
+        """ Creates a new instance of BaseModel or User, saves it
             and prints the id
         - if class name missing (one arg) print: ** class name missing **
         - if class name doesn't exist print ** class doesn't exist **
@@ -33,10 +34,13 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class name  missing **")
-        elif ln[0] != "BaseModel":
+        elif ln[0] != "BaseModel" and ln[0] != "User":
             print("** class doesn't exist **")
         else:
-            obj = BaseModel()
+            if ln[0] == "BaseModel":
+                obj = BaseModel()
+            elif ln[0] == "User":
+                obj = User()
             storage.new(obj)
             storage.save()
             print(obj.id)
@@ -52,7 +56,7 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class name missing **")
-        elif len(ln) > 0 and ln[0] != "BaseModel":
+        elif len(ln) > 0 and ln[0] != "BaseModel" and ln[0] != "User":
             print("** class doesn't exist **")
         elif len(ln) == 1:
             print("** instance id is missing **")
@@ -80,7 +84,7 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class is missing **")
-        elif ln[0] != "BaseModel":
+        elif ln[0] != "BaseModel" and ln[0] != "User":
             print("** class doesn't exist **")
         elif ln[1] is None:
             print("** instance id is missing **")
@@ -102,11 +106,11 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, line):
         """
             prints all string rep of all instances based or not on cls-name
-                $ all (ok)   $ all BaseModel (ok)
+                $ all (ok)   $ all BaseModel (ok) or all User (ok)
         """
         ln = line.split()
         try:
-            if ln[0] != "BaseModel":
+            if ln[0] != "BaseModel" and ln[0] != "User":
                 print("** class doesn't exist **")
                 return
         except IndexError:
@@ -121,9 +125,20 @@ class HBNBCommand(cmd.Cmd):
             if obj_dict == "{}":
                 print("** class doesn't exist **")
             else:
-                for obj_id in obj_dict.keys():
-                    n = obj_id.split(".")
-                    all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
+                if len(ln) == 0:  # only all, no arg
+                    for obj_id in obj_dict.keys():
+                        n = obj_id.split(".")
+                        all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
+                elif ln[0] == "BaseModel":
+                    for obj_id in obj_dict.keys():
+                        n = obj_id.split(".")
+                        if n[0] == "BaseModel":
+                            all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
+                elif ln[0] == "User":
+                    for obj_id in obj_dict.keys():
+                        n = obj_id.split(".")
+                        if n[0] == "User":
+                            all_objs.append(f"[{n[0]}] ({n[1]}) {obj_dict[obj_id]}")
                 print(all_objs)
 
     def do_update(self, line):
@@ -143,7 +158,7 @@ class HBNBCommand(cmd.Cmd):
         ln = line.split()
         if len(ln) == 0:
             print("** class name missing **")
-        elif ln[0] != "BaseModel":
+        elif ln[0] != "BaseModel" and ln[0] != "User":
             print("** class doesn't exist **")
         elif len(ln) == 1:
             print("** instance id missing **")
