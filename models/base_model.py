@@ -23,17 +23,17 @@ class BaseModel():
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.datetime.now()
-            self.updated_at = datetime.datetime.now()
+            self.updated_at = self.created_at  # new instance no changes
             storage.new(self)
 
     def __str__(self):
         """ define __str__ """
-        return f"[{__class__.__name__}] ({self.id}) {self.__dict__}"
+        return f"[{self.__class__.__name__}] ({self.id}) {self.__dict__}"
 
     def save(self):
         """
         updates the public instance attribute 'updated_at'
-        with current datetime
+        with current datetime when the object is changed
         """
         self.updated_at = datetime.datetime.now()
         storage.save()
@@ -47,11 +47,10 @@ class BaseModel():
             - created_at and updated_at must be converted to string obj
                 in ISO format
         """
-        # self.save() - not valid ? = obj not changed
         my_dict = dict()
         for key, val in self.__dict__.items():
-            if not key.startswith('__') and not callable(val):
-                my_dict[key] = val
+            #if not key.startswith('__') and not callable(val):
+            my_dict[key] = val
         my_dict['__class__'] = __class__.__name__
         my_dict['updated_at'] = self.updated_at.isoformat()
         my_dict['created_at'] = self.created_at.isoformat()
