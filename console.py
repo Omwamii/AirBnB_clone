@@ -131,10 +131,10 @@ class HBNBCommand(cmd.Cmd):
                 for key, val in obj_dicts.items():
                     n = key.split(".")
                     if len(ln) == 0:
-                        objs.append(f"[{n[0]}] ({n[1]}) {val}")
+                        objs.append(f"{eval(n[0])(**val).__str__()}")
                     else:
                         if n[0] == ln[0]:
-                            objs.append(f"[{n[0]}] ({n[1]}) {val}")
+                            objs.append(f"{eval(n[0])(**val).__str__()}")
             print(objs)
 
     def do_update(self, line):
