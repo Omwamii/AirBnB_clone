@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+<<<<<<< HEAD
 """Contains the Place model"""
 from models.base_model import BaseModel
 
@@ -20,6 +21,16 @@ class Place(BaseModel):
         longitude (float): The longitude of the place.
         amenity_ids (list): A list of Amenity ids.
     """
+=======
+"""
+module with 'Place' class
+"""
+from .base_model import BaseModel
+
+
+class Place(BaseModel):
+    """ 'Place' class """
+>>>>>>> 572b624ea5abdcb37e998e9157d8dd835ed89b80
     city_id = ""
     user_id = ""
     name = ""
@@ -30,4 +41,8 @@ class Place(BaseModel):
     price_by_night = 0
     latitude = 0.0
     longitude = 0.0
+<<<<<<< HEAD
     amenity_ids = []
+=======
+    amenity_ids = list()
+>>>>>>> 572b624ea5abdcb37e998e9157d8dd835ed89b80
