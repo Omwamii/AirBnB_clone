@@ -110,22 +110,31 @@ class HBNBCommand(cmd.Cmd):
                 with open("file.json", "w") as f:
                     j_string = json.dumps(obj_dicts)
                     f.write(j_string)  # write updated dict JSON string
+                storage.reload()
 
     def do_all(self, line):
         """
             prints all string rep of all instances based or not on cls-name
-                $ all (ok)   $ all BaseModel (ok) or all User (ok)
+                $ all (ok)   $ all <class name> (ok)
         """
         ln = line.split()
         if len(ln) > 0 and ln[0] not in self.__classes:
             print("** class doesn't exist **")
         else:
             objs = list()
-            for obj in storage.all().values():
-                if len(ln) > 0 and ln[0] == obj.__class__.__name__:
-                    objs.append(obj.__str__())
-                elif len(ln) == 0:  # append every object
-                    objs.append(obj.__str__())
+            try:
+                with open("file.json", "r") as f:
+                    obj_dicts = json.load(f)
+            except FileNotFoundError:
+                pass
+            else:
+                for key, val in obj_dicts.items():
+                    n = key.split(".")
+                    if len(ln) == 0:
+                        objs.append(f"[{n[0]}] ({n[1]}) {val}")
+                    else:
+                        if n[0] == ln[0]:
+                            objs.append(f"[{n[0]}] ({n[1]}) {val}")
             print(objs)
 
     def do_update(self, line):
