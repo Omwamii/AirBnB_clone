@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-<<<<<<< HEAD
 """Implements the user's model"""
 from models.base_model import BaseModel
 
@@ -14,16 +13,6 @@ class User(BaseModel):
         first_name (str): the first name of the user
         last_name (str): the last name of the user
     """
-=======
-"""
-module with User class
-"""
-from .base_model import BaseModel
-
-
-class User(BaseModel):
-    """ User class """
->>>>>>> 572b624ea5abdcb37e998e9157d8dd835ed89b80
     email = ""
     password = ""
     first_name = ""
