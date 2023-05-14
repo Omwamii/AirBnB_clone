@@ -76,7 +76,7 @@ class HBNBCommand(cmd.Cmd):
                         print("** no instance found **")
                     else:
                         obj_dict = obj_dicts[f"{ln[0]}.{ln[1]}"]
-                        print(f"[{ln[0]}] ({obj_dict['id']}) {obj_dict}")
+                        print(f"{eval(ln[0])(**obj_dict).__str__()}")
             except FileNotFoundError:
                 print("** no instance found **")
 
