@@ -67,7 +67,7 @@ class HBNBCommand(cmd.Cmd):
         elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
         elif len(ln) == 1:
-            print("** instance id is missing **")
+            print("** instance id missing **")
         else:
             try:
                 with open("file.json", "r") as f:
@@ -95,7 +95,7 @@ class HBNBCommand(cmd.Cmd):
         elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
         elif len(ln) == 1:
-            print("** instance id is missing **")
+            print("** instance id missing **")
         else:
             try:
                 with open("file.json", "r") as f:
