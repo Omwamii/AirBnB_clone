@@ -4,6 +4,7 @@
 """
 import cmd
 import json
+import re  # regex
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -38,6 +39,29 @@ class HBNBCommand(cmd.Cmd):
 
     def emptyline(self):
         pass
+
+    def default(self, line):
+        """ define default for uknown syntax """
+        cmds = {
+                "all": self.do_all,
+                "count": self.do_count,
+                "show": self.do_show,
+                "destroy": self.do_destroy,
+                "update": self.do_update
+                }
+
+        match = re.search(r'(\w+)\.(\w+)\((.*?)\)', line)
+        if match:
+            class_name = match.group(1)
+            method = match.group(2)
+            arguments = match.group(3)
+            arguments = arguments.split(", ")
+            arguments = [arg.strip('"') for arg in arguments]
+            args = class_name + ' ' + ' '.join(arguments)
+            if method in cmds:
+                return cmds[method](args)  # call method
+        print(f"*** Unknown syntax: {line}")
+        return False
 
     def do_create(self, line):
         """ Creates a new instance of a class, saves it
@@ -76,6 +100,10 @@ class HBNBCommand(cmd.Cmd):
                 print("** no instance found **")
             else:
                 print(objs[f"{ln[0]}.{ln[1]}"].__str__())  # print __str__
+
+    def do_count(self, line):
+        """ count occurences """
+        pass
 
     def do_destroy(self, line):
         """
