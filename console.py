@@ -56,9 +56,14 @@ class HBNBCommand(cmd.Cmd):
             class_name = match.group(1)
             method = match.group(2)
             arguments = match.group(3)
+            dict_arg = ""  # harmless incase dict not found
+            if "{" in arguments and "}" in arguments:  # find if dict in args
+                dict_index = arguments.index("{")
+                dict_arg = arguments[dict_index:]  # prevent split ","
+                arguments = arguments[:dict_index]
             arguments = arguments.split(", ")
             arguments = [arg.strip('"') for arg in arguments]
-            args = class_name + ' ' + ' '.join(arguments)
+            args = class_name + ' ' + ' '.join(arguments) + ' ' + dict_arg
             if method in cmds:
                 return cmds[method](args)  # call method
         print(f"*** Unknown syntax: {line}")
@@ -100,7 +105,7 @@ class HBNBCommand(cmd.Cmd):
             if f"{ln[0]}.{ln[1]}" not in objs:
                 print("** no instance found **")
             else:
-                print(objs[f"{ln[0]}.{ln[1]}"].__str__())  # print __str__
+                print(objs[f"{ln[0]}.{ln[1]}"].__str__())  # print str rep
 
     def do_count(self, line):
         """
@@ -177,48 +182,47 @@ class HBNBCommand(cmd.Cmd):
         """
         objs = storage.all()
         ln = line.split()
+        dict_index = line.index("{")
+        arg = str(line[dict_index:])
         if len(ln) == 0:
             print("** class name missing **")
-        elif ln[0] not in self.__classes:
+            return False
+        if ln[0] not in self.__classes:
             print("** class doesn't exist **")
-        elif len(ln) == 1:
+            return False
+        if len(ln) == 1:
             print("** instance id missing **")
-        else:
-            if len(ln) > 2 and type(ln[2]) == 'dict':
-                if f"{ln[0]}.{ln[1]}" not in objs:
-                    print("** no instance found **")
-                    return
-                obj = objs[f"{ln[0]}.{ln[1]}"]
-                for key, val in ln[2].items():
-                    key = key.strip('"')
-                    if (key in obj.__class__.__dict__ and
-                       type(obj.__class__.__dict__[key])
-                       in {str, float, int}):
-                        cast_type = type(obj.__class__.__dict__[key])
-                        obj.__dict__[key] = cast_type(val)
-                    else:
-                        obj.__dict__[key] = val
-                    storage.save()
-            elif len(ln) > 1 and len(ln) < 4:
-                if f"{ln[0]}.{ln[1]}" not in objs:
-                    print("** no instance found **")
-                    return
-                if len(ln) == 2:
-                    print("** attribute name missing **")
-                if len(ln) == 3:
-                    print("** value missing **")
-            else:
-                value = ln[3].strip('"')  # remove the ""
-                if f"{ln[0]}.{ln[1]}" not in objs:
-                    print("** no instance found **")
+            return False
+        if f"{ln[0]}.{ln[1]}" not in objs:
+            print("** no instance found **")
+            return False
+        if len(ln) == 2:
+            print("** attribute name missing **")
+            return False
+        if len(ln) == 3:
+            print("** value missing **")
+            return False
+        if arg.startswith("{") and arg.endswith("}") \
+                and isinstance(eval(arg), dict):
+            obj = objs[f"{ln[0]}.{ln[1]}"]
+            for key, val in eval(arg).items():
+                key = key.strip('"')
+                if key in obj.__class__.__dict__ and \
+                        type(obj.__class__.__dict__[key]) \
+                        in {str, float, int}:
+                    cast_type = type(obj.__class__.__dict__[key])
+                    obj.__dict__[key] = cast_type(val)
                 else:
-                    obj = objs[f"{ln[0]}.{ln[1]}"]
-                    if ln[2] in obj.__class__.__dict__.keys():  # attr present
-                        cast_type = type(obj.__class__.__dict__[ln[2]])
-                        obj.__dict__[ln[2]] = cast_type(value)
-                    else:  # no need to check type
-                        obj.__dict__[ln[2]] = value
-                    storage.save()
+                    obj.__dict__[key] = val
+        else:
+            value = ln[3].strip('"')  # remove the ""
+            obj = objs[f"{ln[0]}.{ln[1]}"]
+            if ln[2] in obj.__class__.__dict__.keys():  # attr present
+                cast_type = type(obj.__class__.__dict__[ln[2]])
+                obj.__dict__[ln[2]] = cast_type(value)
+            else:  # no need to check type
+                obj.__dict__[ln[2]] = value
+        storage.save()
 
 
 if __name__ == '__main__':
