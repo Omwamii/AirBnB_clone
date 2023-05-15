@@ -69,16 +69,11 @@ class HBNBCommand(cmd.Cmd):
         elif len(ln) == 1:
             print("** instance id missing **")
         else:
-            try:
-                with open("file.json", "r") as f:
-                    obj_dicts = json.load(f)
-                    if f"{ln[0]}.{ln[1]}" not in obj_dicts:
-                        print("** no instance found **")
-                    else:
-                        obj_dict = obj_dicts[f"{ln[0]}.{ln[1]}"]
-                        print(f"{eval(ln[0])(**obj_dict).__str__()}")
-            except FileNotFoundError:
+            objs = storage.all()
+            if f"{ln[0]}.{ln[1]}" not in objs:
                 print("** no instance found **")
+            else:
+                print(objs[f"{ln[0]}.{ln[1]}"].__str__())  # print __str__
 
     def do_destroy(self, line):
         """
@@ -97,20 +92,12 @@ class HBNBCommand(cmd.Cmd):
         elif len(ln) == 1:
             print("** instance id missing **")
         else:
-            try:
-                with open("file.json", "r") as f:
-                    obj_dicts = json.load(f)
-            except FileNotFoundError:
+            objs = storage.all()
+            if f"{ln[0]}.{ln[1]}" not in objs:
                 print("** no instance found **")
             else:
-                if f"{ln[0]}.{ln[1]}" not in obj_dicts:
-                    print("** no instance found **")
-                else:
-                    obj_dicts.pop(f"{ln[0]}.{ln[1]}")  # delete obj from dict
-                with open("file.json", "w") as f:
-                    j_string = json.dumps(obj_dicts)
-                    f.write(j_string)  # write updated dict JSON string
-                storage.reload()
+                objs.pop(f"{ln[0]}.{ln[1]}")  # delete obj from __objects
+                storage.save()
 
     def do_all(self, line):
         """
@@ -122,19 +109,12 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
         else:
             objs = list()
-            try:
-                with open("file.json", "r") as f:
-                    obj_dicts = json.load(f)
-            except FileNotFoundError:
-                pass
-            else:
-                for key, val in obj_dicts.items():
-                    n = key.split(".")
-                    if len(ln) == 0:
-                        objs.append(f"{eval(n[0])(**val).__str__()}")
-                    else:
-                        if n[0] == ln[0]:
-                            objs.append(f"{eval(n[0])(**val).__str__()}")
+            objs_dict = storage.all()
+            for obj, val in objs_dict.items():
+                if len(ln) > 0 and ln[0] == val.__class__.__name__:
+                    objs.append(val.__str__())
+                elif len(ln) == 0:
+                    objs.append(val.__str__())
             print(objs)
 
     def do_update(self, line):
@@ -163,25 +143,18 @@ class HBNBCommand(cmd.Cmd):
         elif len(ln) == 3:
             print("** value missing **")
         else:
-            try:
-                with open("file.json", "r") as f:
-                    obj_dicts = json.load(f)
-            except FileNotFoundError:
+            value = ln[3][1:-1]  # remove the ""
+            objs = storage.all()
+            if f"{ln[0]}.{ln[1]}" not in objs:
                 print("** no instance found **")
             else:
-                if f"{ln[0]}.{ln[1]}" not in obj_dicts:
-                    print("** no instance found **")
-                else:
-                    value = (cast_type)(ln[3][1:-1])  # remove double quotes ""
-                    if f"{ln[0]}.{ln[1]}" in obj_dicts:
-                        obj_dict = obj_dicts[f"{ln[0]}.{ln[1]}"]
-                        cast_type = type(obj_dict[f"{ln[2]}"])
-                        val = cast_type(value)
-                        obj_dict[ln[2]] = val  # update the val in the obj dict
-                        obj_dicts[f"{ln[0]}.{ln[1]}"] = obj_dict
-            with open("file.json", "w") as f:
-                j_string = json.dumps(obj_dicts)
-                f.write(j_string)  # write the new dict to file
+                obj = objs[f"{ln[0]}.{ln[1]}"]
+                if ln[2] in obj.__class__.__dict__.keys():  # attr present
+                    cast_type = type(obj.__class__.dict__[ln[2]])
+                    obj.__dict__[ln[2]] = cast_type(value)
+                else:  # no need to check type
+                    obj.__dict__[ln[2]] = value
+                storage.save()
 
 
 if __name__ == '__main__':
