@@ -86,7 +86,7 @@ class HBNBCommand(cmd.Cmd):
         """
         ln = line.split()
         if len(ln) == 0:
-            print("** class is missing **")
+            print("** class name missing **")
         elif ln[0] not in self.__classes:
             print("** class doesn't exist **")
         elif len(ln) == 1:
