@@ -50,7 +50,8 @@ class HBNBCommand(cmd.Cmd):
                 "update": self.do_update
                 }
 
-        match = re.search(r'(\w+)\.(\w+)\((.*?)\)', line)
+        match = re.search(r'(\w+)\.(\w+)\((.*?)\)', line)  # rgx to find match
+        # () in rgx to grp items e.g \w+ to refer to later using match.group()
         if match:
             class_name = match.group(1)
             method = match.group(2)
@@ -102,8 +103,21 @@ class HBNBCommand(cmd.Cmd):
                 print(objs[f"{ln[0]}.{ln[1]}"].__str__())  # print __str__
 
     def do_count(self, line):
-        """ count occurences """
-        pass
+        """
+        Usage: <class name>.count()
+        retrieve the number of instances of a class
+        """
+        name = line.strip()
+        if name not in self.__classes:
+            print("** class doesn't exist **")
+        else:
+            objs = list()
+            count = 0
+            objs_dict = storage.all()
+            for obj, val in objs_dict.items():
+                if name == val.__class__.__name__:
+                    count += 1
+            print(count)
 
     def do_destroy(self, line):
         """
