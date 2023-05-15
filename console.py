@@ -191,7 +191,8 @@ class HBNBCommand(cmd.Cmd):
             if len(ln) == 3:
                 print("** value missing **")
         else:
-            value = ln[3][1:-1]  # remove the ""
+            #value = ln[3][1:-1]  # remove the ""
+            value = ln[3]
             if f"{ln[0]}.{ln[1]}" not in objs:
                 print("** no instance found **")
             else:
