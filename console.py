@@ -163,7 +163,8 @@ class HBNBCommand(cmd.Cmd):
     def do_update(self, line):
         """
         Usage: update <class name> <id> <attribute name> <"attribute value">
-
+        or <class name>.update(<id>, <attribute name>, <attribute value>)
+        or <class name>.update(<id>, <dictionary representation>)
         Updates an instance based on the class name and id by
         adding or updating attribute & save the change to the json file
          - if cls-name missing: print ** class name missing **
@@ -182,27 +183,42 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
         elif len(ln) == 1:
             print("** instance id missing **")
-        elif len(ln) > 1 and len(ln) < 4:
-            if f"{ln[0]}.{ln[1]}" not in objs:
-                print("** no instance found **")
-                return
-            if len(ln) == 2:
-                print("** attribute name missing **")
-            if len(ln) == 3:
-                print("** value missing **")
         else:
-            #value = ln[3][1:-1]  # remove the ""
-            value = ln[3].strip('"')
-            if f"{ln[0]}.{ln[1]}" not in objs:
-                print("** no instance found **")
-            else:
+            if len(ln) > 2 and type(ln[2]) == 'dict':
+                if f"{ln[0]}.{ln[1]}" not in objs:
+                    print("** no instance found **")
+                    return
                 obj = objs[f"{ln[0]}.{ln[1]}"]
-                if ln[2] in obj.__class__.__dict__.keys():  # attr present
-                    cast_type = type(obj.__class__.__dict__[ln[2]])
-                    obj.__dict__[ln[2]] = cast_type(value)
-                else:  # no need to check type
-                    obj.__dict__[ln[2]] = value
-                storage.save()
+                for key, val in ln[2].items():
+                    key = key.strip('"')
+                    if (key in obj.__class__.__dict__ and
+                       type(obj.__class__.__dict__[key])
+                       in {str, float, int}):
+                        cast_type = type(obj.__class__.__dict__[key])
+                        obj.__dict__[key] = cast_type(val)
+                    else:
+                        obj.__dict__[key] = val
+                    storage.save()
+            elif len(ln) > 1 and len(ln) < 4:
+                if f"{ln[0]}.{ln[1]}" not in objs:
+                    print("** no instance found **")
+                    return
+                if len(ln) == 2:
+                    print("** attribute name missing **")
+                if len(ln) == 3:
+                    print("** value missing **")
+            else:
+                value = ln[3].strip('"')  # remove the ""
+                if f"{ln[0]}.{ln[1]}" not in objs:
+                    print("** no instance found **")
+                else:
+                    obj = objs[f"{ln[0]}.{ln[1]}"]
+                    if ln[2] in obj.__class__.__dict__.keys():  # attr present
+                        cast_type = type(obj.__class__.__dict__[ln[2]])
+                        obj.__dict__[ln[2]] = cast_type(value)
+                    else:  # no need to check type
+                        obj.__dict__[ln[2]] = value
+                    storage.save()
 
 
 if __name__ == '__main__':
