@@ -67,7 +67,7 @@ class TestUser_instantiation(unittest.TestCase):
         us = User()
         us.id = "123456"
         us.created_at = us.updated_at = dt
-        usstr = us._str_()
+        usstr = us.__str__()
         self.assertIn("[User] (123456)", usstr)
         self.assertIn("'id': '123456'", usstr)
         self.assertIn("'created_at': " + dt_repr, usstr)
@@ -75,7 +75,7 @@ class TestUser_instantiation(unittest.TestCase):
 
     def test_args_unused(self):
         us = User(None)
-        self.assertNotIn(None, us._dict_.values())
+        self.assertNotIn(None, us.__dict__.values())
 
     def test_instantiation_with_kwargs(self):
         dt = datetime.today()
@@ -152,7 +152,7 @@ class TestUser_to_dict(unittest.TestCase):
         self.assertIn("id", us.to_dict())
         self.assertIn("created_at", us.to_dict())
         self.assertIn("updated_at", us.to_dict())
-        self.assertIn("_class_", us.to_dict())
+        self.assertIn("__class__", us.to_dict())
 
     def test_to_dict_contains_added_attributes(self):
         us = User()
@@ -175,7 +175,7 @@ class TestUser_to_dict(unittest.TestCase):
         us.created_at = us.updated_at = dt
         tdict = {
                 'id': '123456',
-                '_class_': 'User',
+                '__class__': 'User',
                 'created_at': dt.isoformat(),
                 'updated_at': dt.isoformat(),
                 }
@@ -183,7 +183,7 @@ class TestUser_to_dict(unittest.TestCase):
 
     def test_contrast_to_dict_dunder_dict(self):
         us = User()
-        self.assertNotEqual(us.to_dict(), us._dict_)
+        self.assertNotEqual(us.to_dict(), us.__dict__)
 
     def test_to_dict_with_arg(self):
         us = User()
@@ -191,5 +191,5 @@ class TestUser_to_dict(unittest.TestCase):
             us.to_dict(None)
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     unittest.main()

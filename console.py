@@ -4,7 +4,6 @@
 """
 import cmd
 import json
-import sys
 from models.base_model import BaseModel
 from models.user import User
 from models.state import State
@@ -28,18 +27,20 @@ class HBNBCommand(cmd.Cmd):
                  ]
 
     def do_quit(self, line):
-        """Quit command to exit the program\n """
-        sys.exit()
+        """Quit command to exit the program.
+
+        """
+        return True
 
     def do_EOF(self, line):
-        """ handle EOF """
+        """ EOF signal to exit the program. """
         return True
 
     def emptyline(self):
         pass
 
     def do_create(self, line):
-        """ Creates a new instance of BaseModel or User, saves it
+        """ Creates a new instance of a class, saves it
             and prints the id
         - if class name missing (one arg) print: ** class name missing **
         - if class name doesn't exist print ** class doesn't exist **
@@ -55,6 +56,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_show(self, line):
         """
+            Usage: show <class> <id>
             prints the string rep of an instance based on cls-name & id
             - if cls-name missing: print ** class name missing **
             - if cls-name doesnt exist: print ** class doesn't exist **
@@ -77,8 +79,9 @@ class HBNBCommand(cmd.Cmd):
 
     def do_destroy(self, line):
         """
-            Deletes an instance based on class name and id & saves
-            changes to the json file
+        Usage: destroy <class> <id>
+        Deletes an instance based on class name and id & saves
+        changes to json file
             - if cls-name missing: print ** class name missing **
             - if cls doesnt exist: print ** class doesn't exist **
             - if id is missing: print ** instance id missing **
@@ -100,10 +103,8 @@ class HBNBCommand(cmd.Cmd):
                 storage.save()
 
     def do_all(self, line):
-        """
-            prints all string rep of all instances based or not on cls-name
-                $ all (ok)   $ all <class name> (ok)
-        """
+        """prints all string rep of all instances based or not on cls-name
+                $ all (ok)   $ all <class name> (ok)"""
         ln = line.split()
         if len(ln) > 0 and ln[0] not in self.__classes:
             print("** class doesn't exist **")
@@ -119,18 +120,19 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, line):
         """
-            Use: update <class name> <id> <attribute name> <"attribute value">
+        Usage: update <class name> <id> <attribute name> <"attribute value">
 
-            Updates an instance based on the class name and id by
-            adding or updating attribute & save the change to the json file
-            - if cls-name missing: print ** class name missing **
-            - if cls-name doesn't exist: print ** class doesn't exist **
-            - if id is missing: print ** instance id missing **
-            - if instance for id doesn't exist: print ** no instance found **
-            - if attribute name is missing: print ** attribute name missing **
-            - if value for attribute doesn't exist: print ** value missing **
-            - The rest of the values should not be used (one attr at a time)
+        Updates an instance based on the class name and id by
+        adding or updating attribute & save the change to the json file
+         - if cls-name missing: print ** class name missing **
+         - if cls-name doesn't exist: print ** class doesn't exist **
+         - if id is missing: print ** instance id missing **
+         - if instance for id doesn't exist: print ** no instance found **
+         - if attribute name is missing: print ** attribute name missing **
+         - if value for attribute doesn't exist: print ** value missing **
+         - The rest of the values should not be used (one attr at a time)
         """
+        objs = storage.all()
         ln = line.split()
         if len(ln) == 0:
             print("** class name missing **")
@@ -138,19 +140,22 @@ class HBNBCommand(cmd.Cmd):
             print("** class doesn't exist **")
         elif len(ln) == 1:
             print("** instance id missing **")
-        elif len(ln) == 2:
-            print("** attribute name missing **")
-        elif len(ln) == 3:
-            print("** value missing **")
+        elif len(ln) > 1 and len(ln) < 4:
+            if f"{ln[0]}.{ln[1]}" not in objs:
+                print("** no instance found **")
+                return
+            if len(ln) == 2:
+                print("** attribute name missing **")
+            if len(ln) == 3:
+                print("** value missing **")
         else:
             value = ln[3][1:-1]  # remove the ""
-            objs = storage.all()
             if f"{ln[0]}.{ln[1]}" not in objs:
                 print("** no instance found **")
             else:
                 obj = objs[f"{ln[0]}.{ln[1]}"]
                 if ln[2] in obj.__class__.__dict__.keys():  # attr present
-                    cast_type = type(obj.__class__.dict__[ln[2]])
+                    cast_type = type(obj.__class__.__dict__[ln[2]])
                     obj.__dict__[ln[2]] = cast_type(value)
                 else:  # no need to check type
                     obj.__dict__[ln[2]] = value

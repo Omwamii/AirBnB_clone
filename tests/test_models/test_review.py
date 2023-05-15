@@ -36,19 +36,19 @@ class TestReview_instantiation(unittest.TestCase):
         rv = Review()
         self.assertEqual(str, type(Review.place_id))
         self.assertIn("place_id", dir(rv))
-        self.assertNotIn("place_id", rv._dict_)
+        self.assertNotIn("place_id", rv.__dict__)
 
     def test_user_id_is_public_class_attribute(self):
         rv = Review()
         self.assertEqual(str, type(Review.user_id))
         self.assertIn("user_id", dir(rv))
-        self.assertNotIn("user_id", rv._dict_)
+        self.assertNotIn("user_id", rv.__dict__)
 
     def test_text_is_public_class_attribute(self):
         rv = Review()
         self.assertEqual(str, type(Review.text))
         self.assertIn("text", dir(rv))
-        self.assertNotIn("text", rv._dict_)
+        self.assertNotIn("text", rv.__dict__)
 
     def test_two_reviews_unique_ids(self):
         rv1 = Review()
@@ -73,7 +73,7 @@ class TestReview_instantiation(unittest.TestCase):
         rv = Review()
         rv.id = "123456"
         rv.created_at = rv.updated_at = dt
-        rvstr = rv._str_()
+        rvstr = rv.__str__()
         self.assertIn("[Review] (123456)", rvstr)
         self.assertIn("'id': '123456'", rvstr)
         self.assertIn("'created_at': " + dt_repr, rvstr)
@@ -81,7 +81,7 @@ class TestReview_instantiation(unittest.TestCase):
 
     def test_args_unused(self):
         rv = Review(None)
-        self.assertNotIn(None, rv._dict_.values())
+        self.assertNotIn(None, rv.__dict__.values())
 
     def test_instantiation_with_kwargs(self):
         dt = datetime.today()
@@ -158,7 +158,7 @@ class TestReview_to_dict(unittest.TestCase):
         self.assertIn("id", rv.to_dict())
         self.assertIn("created_at", rv.to_dict())
         self.assertIn("updated_at", rv.to_dict())
-        self.assertIn("_class_", rv.to_dict())
+        self.assertIn("__class__", rv.to_dict())
 
     def test_to_dict_contains_added_attributes(self):
         rv = Review()
@@ -181,7 +181,7 @@ class TestReview_to_dict(unittest.TestCase):
         rv.created_at = rv.updated_at = dt
         tdict = {
                 'id': '123456',
-                '_class_': 'Review',
+                '__class__': 'Review',
                 'created_at': dt.isoformat(),
                 'updated_at': dt.isoformat(),
                 }
@@ -189,7 +189,7 @@ class TestReview_to_dict(unittest.TestCase):
 
     def test_contrast_to_dict_dunder_dict(self):
         rv = Review()
-        self.assertNotEqual(rv.to_dict(), rv._dict_)
+        self.assertNotEqual(rv.to_dict(), rv.__dict__)
 
     def test_to_dict_with_arg(self):
         rv = Review()
@@ -197,5 +197,5 @@ class TestReview_to_dict(unittest.TestCase):
             rv.to_dict(None)
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     unittest.main()

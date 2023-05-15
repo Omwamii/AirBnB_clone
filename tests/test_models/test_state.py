@@ -36,7 +36,7 @@ class TestState_instantiation(unittest.TestCase):
         st = State()
         self.assertEqual(str, type(State.name))
         self.assertIn("name", dir(st))
-        self.assertNotIn("name", st._dict_)
+        self.assertNotIn("name", st.__dict__)
 
     def test_two_states_unique_ids(self):
         st1 = State()
@@ -61,7 +61,7 @@ class TestState_instantiation(unittest.TestCase):
         st = State()
         st.id = "123456"
         st.created_at = st.updated_at = dt
-        ststr = st._str_()
+        ststr = st.__str__()
         self.assertIn("[State] (123456)", ststr)
         self.assertIn("'id': '123456'", ststr)
         self.assertIn("'created_at': " + dt_repr, ststr)
@@ -69,7 +69,7 @@ class TestState_instantiation(unittest.TestCase):
 
     def test_args_unused(self):
         st = State(None)
-        self.assertNotIn(None, st._dict_.values())
+        self.assertNotIn(None, st.__dict__.values())
 
     def test_instantiation_with_kwargs(self):
         dt = datetime.today()
@@ -146,7 +146,7 @@ class TestState_to_dict(unittest.TestCase):
         self.assertIn("id", st.to_dict())
         self.assertIn("created_at", st.to_dict())
         self.assertIn("updated_at", st.to_dict())
-        self.assertIn("_class_", st.to_dict())
+        self.assertIn("__class__", st.to_dict())
 
     def test_to_dict_contains_added_attributes(self):
         st = State()
@@ -169,7 +169,7 @@ class TestState_to_dict(unittest.TestCase):
         st.created_at = st.updated_at = dt
         tdict = {
                 'id': '123456',
-                '_class_': 'State',
+                '__class__': 'State',
                 'created_at': dt.isoformat(),
                 'updated_at': dt.isoformat(),
                 }
@@ -177,7 +177,7 @@ class TestState_to_dict(unittest.TestCase):
 
     def test_contrast_to_dict_dunder_dict(self):
         st = State()
-        self.assertNotEqual(st.to_dict(), st._dict_)
+        self.assertNotEqual(st.to_dict(), st.__dict__)
 
     def test_to_dict_with_arg(self):
         st = State()
@@ -185,5 +185,5 @@ class TestState_to_dict(unittest.TestCase):
             st.to_dict(None)
 
 
-if _name_ == "_main_":
+if __name__ == "__main__":
     unittest.main()
