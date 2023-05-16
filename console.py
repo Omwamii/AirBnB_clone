@@ -50,7 +50,7 @@ class HBNBCommand(cmd.Cmd):
                 "update": self.do_update
                 }
 
-        match = re.search(r'(\w+)\.(\w+)\((.*?)\)', line)  # rgx to find match
+        match = re.search(r'(\w*)\.(\w+)\((.*?)\)', line)  # rgx to find match
         # () in rgx to grp items e.g \w+ to refer to later using match.group()
         if match:
             class_name = match.group(1)
@@ -91,7 +91,7 @@ class HBNBCommand(cmd.Cmd):
             - if cls-name missing: print ** class name missing **
             - if cls-name doesnt exist: print ** class doesn't exist **
             - if id is missing: print ** instance id is missing **
-            - if instance of cls-name !exist for id : ** no instance found **
+            - if instance of cls !exist for id : ** no instance found **
         """
         ln = line.split()
         if len(ln) == 0:
@@ -114,7 +114,8 @@ class HBNBCommand(cmd.Cmd):
         """
         name = line.strip()
         if name not in self.__classes:
-            print("** class doesn't exist **")
+            print(0)
+            return
         else:
             objs = list()
             count = 0
@@ -167,7 +168,7 @@ class HBNBCommand(cmd.Cmd):
 
     def do_update(self, line):
         """
-        Usage: update <class name> <id> <attribute name> <"attribute value">
+        Usage: update <class name> <id> <attribute name> <"attr value">
         or <class name>.update(<id>, <attribute name>, <attribute value>)
         or <class name>.update(<id>, <dictionary representation>)
         Updates an instance based on the class name and id by
@@ -182,8 +183,13 @@ class HBNBCommand(cmd.Cmd):
         """
         objs = storage.all()
         ln = line.split()
-        dict_index = line.index("{")
-        arg = str(line[dict_index:])
+        try:
+            dict_index = line.index("{")
+        except ValueError:
+            arg = ""
+            pass
+        else:
+            arg = str(line[dict_index:])
         if len(ln) == 0:
             print("** class name missing **")
             return False
@@ -215,7 +221,7 @@ class HBNBCommand(cmd.Cmd):
                 else:
                     obj.__dict__[key] = val
         else:
-            value = ln[3].strip('"')  # remove the ""
+            value = ln[3].strip('"\'')  # remove the ""
             obj = objs[f"{ln[0]}.{ln[1]}"]
             if ln[2] in obj.__class__.__dict__.keys():  # attr present
                 cast_type = type(obj.__class__.__dict__[ln[2]])
